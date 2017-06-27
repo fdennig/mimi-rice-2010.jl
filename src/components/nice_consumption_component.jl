@@ -28,7 +28,7 @@ function run_timestep(state::nice_consumption, t::Int)
         net_frac = 1.0 - p.ABATEFRAC[t,r] - dam_loss
 
         for q in d.quintiles
-            v.quintile_c[t,r,q] = 5.0 * (p.CPC[t,r] / net_frac) * (p.income_dist[r,q] - p.ABATEFRAC[t,r] * p.abatement_dist[r,q] - dam_loss * p.damage_dist[r,q])
+            v.quintile_c[t,r,q] = max((5.0 * (p.CPC[t,r] / net_frac) * (p.income_dist[r,q] - p.ABATEFRAC[t,r] * p.abatement_dist[r,q] - dam_loss * p.damage_dist[r,q])), 0.0001)
         end
     end
 end
