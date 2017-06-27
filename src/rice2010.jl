@@ -1,6 +1,6 @@
 using Mimi
 
-include("parameters.jl")
+include("rice_parameters.jl")
 
 include("components/climatedynamics_component.jl")
 include("components/co2cycle_component.jl")
