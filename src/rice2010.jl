@@ -1,6 +1,6 @@
 using Mimi
 
-include("parameters.jl")
+include("rice_parameters.jl")
 
 include("components/climatedynamics_component.jl")
 include("components/co2cycle_component.jl")
@@ -13,7 +13,7 @@ include("components/slr_component.jl")
 include("components/slrdamages_component.jl")
 include("components/welfare_component.jl")
 
-function constructrice(p)
+function constructrice(p, nsteps)
     al = p[:al]
     l = p[:l]
     gama = p[:gama]
@@ -82,7 +82,7 @@ function constructrice(p)
 
     m = Model()
 
-    setindex(m, :time, collect(2005:10:2595))
+    setindex(m, :time, collect(2005:10:((nsteps-1)*10+2005)))
     setindex(m, :regions, ["US", "EU", "Japan", "Russia", "Eurasia", "China", "India", "MidEast", "Africa", "LatAm", "OHI", "OthAsia"])
 
     addcomponent(m, grosseconomy, :grosseconomy)
@@ -214,10 +214,10 @@ function constructrice(p)
     return m
 end
 
-function getrice(;datafile=joinpath(dirname(@__FILE__), "..", "data", "RICE_2010_base_000.xlsm"))
+function getrice(;datafile=joinpath(dirname(@__FILE__), "..", "data", "RICE_2010_base_000.xlsm"), nsteps=60)
     params = getrice2010parameters(datafile)
 
-    m = constructrice(params)
+    m = constructrice(params, nsteps)
 
-    return m
+    return m, params
 end

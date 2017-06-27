@@ -1,45 +1,68 @@
-# Mimi-RICE-2010.jl - a julia implementation of the RICE 2010 model
+# mimi_NICE
 
-This is an implementation of the RICE-2010 model in the julia programming
-language. It was created by recoding the Excel version of the model in
-julia. This julia version was created by David Anthoff and Frank
-Errickson. Bill Nordhaus was not involved in creating this julia version
-of RICE, has not endorsed it and it is no way responsible for any errors
-it might contain.
 
-Mimi-RICE-2010.jl is based on the version of RICE-2010 that can be downloaded
-[here](http://www.econ.yale.edu/~nordhaus/homepage/RICEmodels.htm). It
-uses the [Mimi framework](https://github.com/anthofflab/Mimi.jl) for
-integrated assessment models.
+### To Run Mimi-NICE One Time
 
-## Software requirements
+(1) Set your working directory to the src folder.  
 
-You need to install [julia](http://julialang.org/) to run this model.
+`cd("...local_path_to_mimi_NICE/src")`  
 
-## Preparing the software environment
+(2) Run the file to construct NICE (this will load the construct_nice function).  
 
-You need to install a number of packges to run the model. You can use the
-following julia code to do so:
+`include("nice.jl")`
 
-````julia
-Pkg.add("Mimi")
-Pkg.add("ExcelReaders")
-````
+(3) Construct your model (this will return your model as well as the RICE parameters for convenience).
 
-## Running the model
+`m, rice_params = construct_nice()`  
 
-The model uses the [Mimi framework]() and it is highly recommended to
-read the Mimi documentation first to understand the code structure.
-To just run the model once, you can run the code in the file ``src/main.jl``.
+(4) Run your model.  
 
-## Known issues
+`run(m)`  
 
-* Atmospheric CO2 concentrations in the years 2005 and 2015 are fixed in
-the Excel original. Emissions in the year 2005 therefore don't have any
-effect on CO2 concentrations in the model (emissions in the year 2015
-affect concentrations in the year 2025). Mimi-RICE-2010 matches the Excel
-version in this behaviour.
-* Mimi-RICE-2010.jl does not provide any optimization routines, it purely
-replicates the RICE-2010 baseline run.
-* The marginal damage calculation in src/marginaldamage.jl is not based
-on the original Excel version of RICE.
+(5) Extract results.  
+
+`m[:nice_welfare, :welfare]`  
+
+
+### To Optimize Mimi-NICE  
+(1) Set your working directory to the src folder.  
+`cd("...local_path_to_mimi_NICE/src")`  
+
+(2) Run the file to construct NICE (this will load the construct_nice function and also return 
+    a function to create your objective function as well as the rice parameters).  
+`include("nice.jl")`  
+
+(3) Construct your objective function for NICE.  
+`nice_objective, rice_params = construct_nice_objective()`  
+
+(4) Set up your optimzation (it's just NLopt stuff at this point).  
+```
+using NLopt
+n_objectives = 10 
+opt = Opt(:LN_BOBYQA, n_objectives)  
+```
+Extract RICE backstop price values and index/scale for NICE.  
+`backstop_opt_values = maximum(rice_params[:pbacktime], 2)[2:(n_objectives+1)].*1000.0`
+
+Set upper and lower bounds for the regional savings rates.  
+ ```
+lower_bounds!(opt, zeros(n_objectives))  
+upper_bounds!(opt, backstop_opt_values)  
+```
+Set the objective function to maximize.  
+`max_objective!(opt, (x, grad) -> nice_objective(x))`  
+
+Set a maximum time to stop at if things don't converge.  
+```
+maxtime!(opt, 300)  
+ftol_rel!(opt, 0.000000000005)  
+```
+Set an initial guess for optimization to try.  
+`initial_guess = backstop_opt_values  `
+
+(5) Perform the optimization.  
+```
+(minf,minx,ret) = optimize(opt, initial_guess)  
+println(ret)  
+minx  
+```

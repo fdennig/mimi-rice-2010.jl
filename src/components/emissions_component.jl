@@ -9,6 +9,8 @@ using Mimi
     ABATECOST = Variable(index=[time, regions]) # Cost of emissions reductions  (trillions 2005 USD per year)
     MCABATE = Variable(index=[time, regions]) # Marginal cost of abatement (2005$ per ton CO2)
     CPRICE = Variable(index=[time, regions]) # Carbon price (2005$ per ton of CO2)
+    ABATEFRAC = Variable(index=[time, regions])
+
 
     sigma = Parameter(index=[time, regions]) # CO2-equivalent-emissions output ratio
     YGROSS = Parameter(index=[time, regions]) # Gross world product GROSS of abatement and damages (trillions 2005 USD per year)
@@ -40,9 +42,10 @@ function run_timestep(state::emissions, t::Int)
 
     #Define function for ABATECOST
     for r in d.regions
-        v.ABATECOST[t,r] = p.YGROSS[t,r] * p.cost1[t,r] * (p.MIU[t,r]^p.expcost2[r]) * (p.partfract[t,r]^(1 - p.expcost2[r]))
+        v.ABATEFRAC[t,r] = p.cost1[t,r] * (p.MIU[t,r]^p.expcost2[r]) * (p.partfract[t,r]^(1 - p.expcost2[r]))
+        v.ABATECOST[t,r] = p.YGROSS[t,r] * v.ABATEFRAC[t,r]
     end
-
+    
     #Define function for MCABATE
     for r in d.regions
         v.MCABATE[t,r] = p.pbacktime[t,r] * p.MIU[t,r]^(p.expcost2[r] - 1)
