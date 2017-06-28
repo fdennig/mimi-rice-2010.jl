@@ -1,7 +1,6 @@
 using DataFrames
 using NLopt
 
-include(joinpath(dirname(@__FILE__), "components/nice_components/nice_grosseconomy_component.jl"))
 include(joinpath(dirname(@__FILE__), "components/nice_components/nice_consumption_component.jl"))
 include(joinpath(dirname(@__FILE__), "components/nice_components/nice_welfare_component.jl"))
 include(joinpath(dirname(@__FILE__), "rice2010.jl"))
@@ -27,21 +26,15 @@ function construct_nice(nsteps=60, xi=1.0, omega=1.0)
     # Set quintile index
     setindex(m, :quintiles, ["First", "Second", "Third", "Fourth", "Fifth"])
 
-    # Delete gross economy (to allow for full capital deprecation) and RICE welfare component.
-    delete!(m, :grosseconomy)
+    # Delete RICE welfare component.
     delete!(m, :welfare)
 
     # Add NICE specific components.
-    addcomponent(m, nice_grosseconomy, before=:emissions)
     addcomponent(m, nice_consumption, after=:neteconomy)
     addcomponent(m, nice_welfare, after=:nice_consumption)
 
     # Set all model parameters
-    setparameter(m, :nice_grosseconomy, :al, rice_params[:al])
-    setparameter(m, :nice_grosseconomy, :l, rice_params[:l])
-    setparameter(m, :nice_grosseconomy, :gama, rice_params[:gama])
-    setparameter(m, :nice_grosseconomy, :dk, rice_params[:dk])
-    setparameter(m, :nice_grosseconomy, :k0,  rice_params[:k0])
+    setparameter(m, :grosseconomy, :dk, ones(12))
 
     setparameter(m, :nice_consumption, :income_dist, transpose(income_dist ./ 100))
     setparameter(m, :nice_consumption, :damage_dist, transpose(damage_dist ./ 100))
@@ -55,11 +48,6 @@ function construct_nice(nsteps=60, xi=1.0, omega=1.0)
     setparameter(m, :neteconomy, :S, (ones(nsteps,12) .* 0.2585))
 
     # Make model component connections.
-    connectparameter(m, :nice_grosseconomy, :I, :neteconomy, :I)
-    connectparameter(m, :emissions, :YGROSS, :nice_grosseconomy, :YGROSS)
-    connectparameter(m, :sealeveldamages, :YGROSS, :nice_grosseconomy, :YGROSS)
-    connectparameter(m, :damages, :YGROSS, :nice_grosseconomy, :YGROSS)
-    connectparameter(m, :neteconomy, :YGROSS, :nice_grosseconomy, :YGROSS)
     connectparameter(m, :nice_consumption, :CPC, :neteconomy, :CPC)
     connectparameter(m, :nice_consumption, :DAMFRAC, :damages, :DAMFRAC)
     connectparameter(m, :nice_consumption, :ABATEFRAC, :emissions, :ABATEFRAC)
