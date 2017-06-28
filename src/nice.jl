@@ -1,17 +1,17 @@
 using DataFrames
 using NLopt
 
-include("components/nice_components/nice_grosseconomy_component.jl")
-include("components/nice_components/nice_consumption_component.jl")
-include("components/nice_components/nice_welfare_component.jl")
-include("rice2010.jl")
-include("helpers.jl")
+include(joinpath(dirname(@__FILE__), "components/nice_components/nice_grosseconomy_component.jl"))
+include(joinpath(dirname(@__FILE__), "components/nice_components/nice_consumption_component.jl"))
+include(joinpath(dirname(@__FILE__), "components/nice_components/nice_welfare_component.jl"))
+include(joinpath(dirname(@__FILE__), "rice2010.jl"))
+include(joinpath(dirname(@__FILE__), "helpers.jl"))
 
 function construct_nice(nsteps=60, xi=1.0, omega=1.0)
 
 
     # Read in income quintile distribution data
-    income_dist = Array(readtable(joinpath("..", "data", "income_quintiles_RICE.csv"), header=false))
+    income_dist = Array(readtable(joinpath(dirname(@__FILE__), "../data/income_quintiles_RICE.csv"), header=false))
 
     # Estimate damage and abatement distributions for quintiles
     damage_dist = quintile_dist(xi, income_dist)

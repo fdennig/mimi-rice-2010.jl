@@ -1,17 +1,16 @@
 using Mimi
 
-include("rice_parameters.jl")
-
-include("components/climatedynamics_component.jl")
-include("components/co2cycle_component.jl")
-include("components/damages_component.jl")
-include("components/emissions_component.jl")
-include("components/grosseconomy_component.jl")
-include("components/neteconomy_component.jl")
-include("components/radiativeforcing_component.jl")
-include("components/slr_component.jl")
-include("components/slrdamages_component.jl")
-include("components/welfare_component.jl")
+include(joinpath(dirname(@__FILE__), "rice_parameters.jl"))
+include(joinpath(dirname(@__FILE__), "components/climatedynamics_component.jl"))
+include(joinpath(dirname(@__FILE__), "components/co2cycle_component.jl"))
+include(joinpath(dirname(@__FILE__), "components/damages_component.jl"))
+include(joinpath(dirname(@__FILE__), "components/emissions_component.jl"))
+include(joinpath(dirname(@__FILE__), "components/grosseconomy_component.jl"))
+include(joinpath(dirname(@__FILE__), "components/neteconomy_component.jl"))
+include(joinpath(dirname(@__FILE__), "components/radiativeforcing_component.jl"))
+include(joinpath(dirname(@__FILE__), "components/slr_component.jl"))
+include(joinpath(dirname(@__FILE__), "components/slrdamages_component.jl"))
+include(joinpath(dirname(@__FILE__), "components/welfare_component.jl"))
 
 function constructrice(p, nsteps)
     al = p[:al]
