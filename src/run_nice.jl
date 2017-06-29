@@ -139,7 +139,7 @@ if save_results
                                "\r\ncap_dep = ", cap_dep,
                                "\r\nrho = ", rho,
                                "\r\neta = ", eta,
-                               "\r\noptimze = ", optimize,
+                               "\r\noptimze = ", optimization,
                                "\r\noptimization algorithm = ", opt_algorithm,
                                "\r\nnumber of objectives = ", n_objective)
     write(joinpath(output_directory, "Model Specifications.txt"), parameter_details)
