@@ -1,5 +1,5 @@
 using ExcelReaders
-include("helpers.jl")
+include(joinpath(dirname(@__FILE__), "helpers.jl"))
 
 function getrice2010parameters(filename)
     p = Dict{Symbol,Any}()
